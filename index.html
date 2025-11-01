@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Solar Tracking System - Tarteel Al-Sa'ood</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --neon-gold: #ffd700;
+            --neon-orange: #ff8c00;
+            --neon-sun: #ff4500;
+            --dark-space: #0a0a16;
+            --card-bg: rgba(30, 30, 60, 0.9);
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a16 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+            scroll-behavior: smooth;
+            transition: all 0.3s ease;
+        }
+
+        body[dir="rtl"] {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+
+        /* Sun effect in background */
+        .sun-background {
+            position: fixed;
+            top: -50vh;
+            right: -50vh;
+            width: 100vh;
+            height: 100vh;
+            background: radial-gradient(circle, var(--neon-sun) 0%, transparent 70%);
+            opacity: 0.1;
+            filter: blur(50px);
+            z-index: -1;
+            animation: sunGlow 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes sunGlow {
+            0% { opacity: 0.08; transform: scale(1); }
+            100% { opacity: 0.15; transform: scale(1.1); }
+        }
+
+        /* Stars */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Language toggle */
+        .language-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid var(--neon-gold);
+            color: var(--neon-gold);
+            padding: 12px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+            font-size: clamp(0.9rem, 2vw, 1rem);
+        }
+
+        body[dir="rtl"] .language-toggle {
+            right: auto;
+            left: 20px;
+        }
+
+        .language-toggle:hover {
+            background: rgba(255, 215, 0, 0.2);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            transform: scale(1.05);
+        }
+
+        /* Hero section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .hero-content h1 {
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            margin-bottom: clamp(20px, 4vw, 30px);
+            background: linear-gradient(45deg, var(--neon-gold), var(--neon-orange), var(--neon-sun));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 140, 0, 0.5);
+            animation: titleGlow 3s ease-in-out infinite alternate;
+            line-height: 1.2;
+        }
+
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 20px rgba(255, 140, 0, 0.5); }
+            100% { text-shadow: 0 0 40px rgba(255, 215, 0, 0.8); }
+        }
+
+        .hero-content p {
+            font-size: clamp(1rem, 3vw, 1.4rem);
+            margin-bottom: clamp(30px, 6vw, 40px);
+            max-width: 700px;
+            line-height: 1.6;
+            color: #e0e0ff;
+            text-align: center;
+        }
+
+        .student-name {
+            font-size: clamp(1.2rem, 3vw, 1.6rem);
+            color: var(--neon-gold);
+            margin-bottom: clamp(15px, 3vw, 20px);
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--neon-gold);
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-20px); }
+            60% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        /* Sections */
+        section {
+            padding: clamp(60px, 10vw, 120px) clamp(20px, 5vw, 50px);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: clamp(2rem, 6vw, 3rem);
+            margin-bottom: clamp(40px, 8vw, 80px);
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: clamp(80px, 20vw, 150px);
+            height: 4px;
+            background: linear-gradient(45deg, var(--neon-gold), var(--neon-orange));
+            border-radius: 3px;
+            box-shadow: 0 0 15px var(--neon-gold);
+        }
+
+        /* Feature cards */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr));
+            gap: clamp(20px, 4vw, 40px);
+            margin-top: clamp(30px, 6vw, 60px);
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: clamp(25px, 5vw, 40px) clamp(20px, 4vw, 30px);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, var(--neon-gold), var(--neon-orange));
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(255, 215, 0, 0.2);
+            border-color: rgba(255, 215, 0, 0.5);
+        }
+
+        .feature-icon {
+            font-size: clamp(2.5rem, 6vw, 3.5rem);
+            margin-bottom: clamp(15px, 3vw, 25px);
+            color: var(--neon-gold);
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .feature-card h3 {
+            font-size: clamp(1.4rem, 3vw, 1.8rem);
+            margin-bottom: clamp(15px, 3vw, 20px);
+            color: var(--neon-gold);
+            text-align: center;
+        }
+
+        .feature-points {
+            list-style: none;
+            text-align: left;
+        }
+
+        body[dir="rtl"] .feature-points {
+            text-align: right;
+        }
+
+        .feature-points li {
+            padding: clamp(8px, 2vw, 12px) 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            padding-left: 25px;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+        }
+
+        body[dir="rtl"] .feature-points li {
+            padding-left: 0;
+            padding-right: 25px;
+        }
+
+        .feature-points li::before {
+            content: '⚡';
+            position: absolute;
+            left: 0;
+            color: var(--neon-gold);
+        }
+
+        body[dir="rtl"] .feature-points li::before {
+            left: auto;
+            right: 0;
+        }
+
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: clamp(15px, 3vw, 30px);
+            margin-top: clamp(30px, 6vw, 50px);
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: linear-gradient(45deg, var(--neon-gold), var(--neon-orange));
+            color: black;
+            border: none;
+            padding: clamp(12px, 3vw, 18px) clamp(25px, 5vw, 40px);
+            border-radius: 50px;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+            white-space: nowrap;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.6);
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, #666, #999);
+            color: white;
+            border: none;
+            padding: clamp(10px, 2vw, 15px) clamp(20px, 4vw, 30px);
+            border-radius: 50px;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 3D Model */
+        .model-container {
+            width: 100%;
+            height: clamp(300px, 50vw, 600px);
+            background: rgba(20, 20, 40, 0.6);
+            border-radius: 20px;
+            margin-top: 30px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            display: none;
+        }
+
+        #threejs-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .model-controls {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 10;
+        }
+
+        body[dir="rtl"] .model-controls {
+            left: auto;
+            right: 15px;
+        }
+
+        .model-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .model-icon {
+            font-size: clamp(4rem, 10vw, 8rem);
+            color: var(--neon-gold);
+            margin-bottom: 20px;
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Code Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1e1e2e;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 2px solid var(--neon-gold);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--neon-gold);
+            font-weight: bold;
+            text-align: center;
+            flex: 1;
+        }
+
+        .close-modal {
+            background: var(--neon-gold);
+            color: black;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body[dir="rtl"] .close-modal {
+            order: -1;
+        }
+
+        .code-block {
+            background: #2d2d44;
+            border-radius: 15px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            color: #f8f8f2;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin-top: 20px;
+            text-align: left;
+            direction: ltr;
+        }
+
+        .code-section {
+            margin-bottom: 25px;
+        }
+
+        .code-section h4 {
+            color: var(--neon-gold);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(10, 10, 22, 0.95);
+            padding: clamp(30px, 6vw, 50px) 20px;
+            text-align: center;
+            margin-top: clamp(50px, 10vw, 100px);
+            border-top: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-content h3 {
+            font-size: clamp(1.2rem, 3vw, 1.6rem);
+            margin-bottom: 15px;
+            color: var(--neon-gold);
+        }
+
+        .footer-content p {
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            margin-bottom: 10px;
+            color: #e0e0ff;
+        }
+
+        /* Mobile menu for small screens */
+        @media (max-width: 480px) {
+            .language-toggle {
+                top: 15px;
+                right: 15px;
+                padding: 10px 15px;
+            }
+            
+            body[dir="rtl"] .language-toggle {
+                right: auto;
+                left: 15px;
+            }
+            
+            .hero {
+                padding: 15px;
+            }
+            
+            section {
+                padding: 40px 15px;
+            }
+            
+            .feature-card {
+                padding: 20px 15px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .action-btn {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+
+            .modal-content {
+                padding: 20px;
+                width: 95%;
+            }
+        }
+
+        /* Tablet optimization */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .feature-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .hero-content h1 {
+                font-size: 3.5rem;
+            }
+        }
+
+        /* Large desktop optimization */
+        @media (min-width: 1400px) {
+            .feature-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sun background effect -->
+    <div class="sun-background"></div>
+    
+    <!-- Stars -->
+    <div class="stars" id="stars"></div>
+
+    <!-- Language toggle -->
+    <button class="language-toggle" id="langToggle">
+        <i class="fas fa-language"></i>
+        العربية
+    </button>
+
+    <!-- Hero section -->
+    <section class="hero" id="hero">
+        <div class="hero-content">
+            <div class="student-name">Graduation Project: Tarteel Al-Sa'ood</div>
+            <h1>Smart Solar Tracking System</h1>
+            <p>An innovative project that combines solar energy and Arduino technology to create an intelligent system that tracks the sun and automatically determines prayer times</p>
+            <div class="action-buttons">
+                <button class="action-btn" onclick="showCodeModal()">
+                    <i class="fas fa-code"></i>
+                    View Source Code
+                </button>
+                <button class="action-btn" onclick="load3DModel()">
+                    <i class="fas fa-cube"></i>
+                    View 3D Model
+                </button>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- About Project -->
+    <section id="about">
+        <h2 class="section-title">About The Project</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🌅</div>
+                <h3>Project Idea</h3>
+                <ul class="feature-points">
+                    <li>System automatically tracks sun movement</li>
+                    <li>Increases solar energy efficiency by 40%</li>
+                    <li>Determines prayer times from light intensity</li>
+                    <li>Displays data on LCD screen</li>
+                    <li>Controls LED colors based on time</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>How It Works</h3>
+                <ul class="feature-points">
+                    <li>4 light sensors to measure directions</li>
+                    <li>Servo motors to move solar panels</li>
+                    <li>Data processing in Arduino</li>
+                    <li>Results displayed on screen</li>
+                    <li>Visual alert color changes</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Objectives</h3>
+                <ul class="feature-points">
+                    <li>Energy consumption optimization</li>
+                    <li>Accurate prayer time determination</li>
+                    <li>Practical electronics application</li>
+                    <li>Renewable energy support</li>
+                    <li>Outstanding graduation project</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features">
+        <h2 class="section-title">Technical Features</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔧</div>
+                <h3>Technologies Used</h3>
+                <ul class="feature-points">
+                    <li>Arduino C++ programming</li>
+                    <li>LDR light sensors</li>
+                    <li>Servo Motor controllers</li>
+                    <li>LCD screen with I2C</li>
+                    <li>RGB multi-color LED</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">💡</div>
+                <h3>Innovation</h3>
+                <ul class="feature-points">
+                    <li>Integration of multiple technologies</li>
+                    <li>Practical and economical solutions</li>
+                    <li>Efficient programming code</li>
+                    <li>Sturdy mechanical design</li>
+                    <li>Simple user interface</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🚀</div>
+                <h3>Applications</h3>
+                <ul class="feature-points">
+                    <li>Smart homes</li>
+                    <li>Mosques and institutions</li>
+                    <li>Gardens and parks</li>
+                    <li>Educational projects</li>
+                    <li>Solar energy systems</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Components -->
+    <section id="components">
+        <h2 class="section-title">Electronic Components</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔌</div>
+                <h3>Main Components</h3>
+                <ul class="feature-points">
+                    <li>Arduino Uno</li>
+                    <li>LDR Light Sensors × 4</li>
+                    <li>180° Servo Motors × 2</li>
+                    <li>LCD 16x2 with I2C</li>
+                    <li>RGB LED</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Additional Components</h3>
+                <ul class="feature-points">
+                    <li>Breadboard</li>
+                    <li>Jumper Wires</li>
+                    <li>10K Ohm Resistors × 4</li>
+                    <li>Small Solar Panel</li>
+                    <li>9V Battery</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🛠️</div>
+                <h3>Assembly Tools</h3>
+                <ul class="feature-points">
+                    <li>Wooden or plastic frame</li>
+                    <li>Screws and bolts</li>
+                    <li>Wrench</li>
+                    <li>Strong adhesive</li>
+                    <li>Electrical wires</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3D Model Section -->
+    <section id="model">
+        <h2 class="section-title">3D Model</h2>
+        <div class="action-buttons">
+            <button class="action-btn" onclick="load3DModel()">
+                <i class="fas fa-cube"></i>
+                Load 3D Model
+            </button>
+            <button class="action-btn" onclick="showCodeModal()">
+                <i class="fas fa-code"></i>
+                View Source Code
+            </button>
+        </div>
+        <div class="model-container" id="modelContainer">
+            <div class="model-controls">
+                <button class="back-btn" onclick="hide3DModel()">
+                    <i class="fas fa-arrow-left"></i>
+                    <span class="back-text">Back</span>
+                </button>
+            </div>
+            <div id="threejs-container"></div>
+        </div>
+        <div class="model-placeholder" id="modelPlaceholder">
+            <div class="model-icon">🌞</div>
+            <h3>3D Model Viewer</h3>
+            <p>Click the button above to load the 3D model</p>
+            <p>GLB format supported - File: 3W.glb</p>
+        </div>
+    </section>
+
+    <!-- Code Modal -->
+    <div class="modal" id="codeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Source Code - Smart Solar Tracker</h3>
+                <button class="close-modal" onclick="closeCodeModal()">×</button>
+            </div>
+            <div class="action-buttons">
+                <button class="action-btn" onclick="copyCode()">
+                    <i class="fas fa-copy"></i>
+                    Copy Full Code
+                </button>
+                <button class="back-btn" onclick="closeCodeModal()">
+                    <i class="fas fa-times"></i>
+                    <span class="close-text">Close</span>
+                </button>
+            </div>
+            
+            <div class="code-sections">
+                <div class="code-section">
+                    <h4>Main Includes & Definitions</h4>
+                    <div class="code-block">
+// Smart Solar Tracking System Code
+#include &lt;Servo.h&gt;
+#include &lt;LiquidCrystal_I2C.h&gt;
+
+// Define variables
+Servo horizontalServo, verticalServo;
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+// Define light sensors
+const int ldrTL = A0, ldrTR = A1, ldrBL = A2, ldrBR = A3;
+
+// Define LED colors
+const int redPin = 9, greenPin = 10, bluePin = 11;
+
+void setup() {
+  lcd.init(); lcd.backlight();
+  horizontalServo.attach(5);
+  verticalServo.attach(6);
+  
+  pinMode(redPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+  pinMode(bluePin, OUTPUT);
+  
+  lcd.setCursor(0,0);
+  lcd.print("Solar Tracker");
+  lcd.setCursor(0,1);
+  lcd.print("By Tarteel");
+}
+
+void loop() {
+  // Read sensors
+  int tl = analogRead(ldrTL);
+  int tr = analogRead(ldrTR);
+  int bl = analogRead(ldrBL);
+  int br = analogRead(ldrBR);
+  
+  // Track sun
+  trackSun(tl, tr, bl, br);
+  
+  // Determine prayer time
+  determinePrayerTime();
+  
+  delay(100);
+}
+
+void trackSun(int tl, int tr, int bl, int br) {
+  // Sun tracking code here
+}
+
+void determinePrayerTime() {
+  // Prayer time determination code here
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <h3>Graduation Project - Tarteel Al-Sa'ood</h3>
+            <p>Smart Solar Tracking System - 2024</p>
+            <p>All Rights Reserved</p>
+        </div>
+    </footer>
+
+    <script>
+        // Translation dictionary
+        const translations = {
+            en: {
+                // Hero Section
+                title: "Smart Solar Tracking System",
+                student: "Graduation Project: Tarteel Al-Sa'ood",
+                description: "An innovative project that combines solar energy and Arduino technology to create an intelligent system that tracks the sun and automatically determines prayer times",
+                
+                // Section Titles
+                about: "About The Project",
+                features: "Technical Features", 
+                components: "Electronic Components",
+                model: "3D Model",
+                code: "Source Code",
+                
+                // Buttons
+                viewCode: "View Source Code",
+                viewModel: "View 3D Model", 
+                loadModel: "Load 3D Model",
+                copyCode: "Copy Full Code",
+                close: "Close",
+                back: "Back",
+                
+                // Modal
+                codeTitle: "Source Code - Smart Solar Tracker",
+                
+                // 3D Model
+                modelTitle: "3D Model Viewer",
+                modelText: "Click the button above to load the 3D model",
+                modelFormat: "GLB format supported - File: 3W.glb"
+            },
+            ar: {
+                // Hero Section
+                title: "نظام تتبع الشمس الذكي",
+                student: "مشروع تخرج: ترتيل الصعوب",
+                description: "مشروع مبتكر يجمع بين الطاقة الشمسية وتكنولوجيا الأردوينو لإنشاء نظام ذكي يتتبع الشمس ويحدد أوقات الصلاة تلقائياً",
+                
+                // Section Titles
+                about: "عن المشروع",
+                features: "المميزات التقنية",
+                components: "القطع الإلكترونية", 
+                model: "النموذج ثلاثي الأبعاد",
+                code: "الكود البرمجي",
+                
+                // Buttons
+                viewCode: "عرض الكود البرمجي",
+                viewModel: "عرض النموذج ثلاثي الأبعاد",
+                loadModel: "تحميل النموذج",
+                copyCode: "نسخ الكود كاملاً",
+                close: "إغلاق",
+                back: "رجوع",
+                
+                // Modal
+                codeTitle: "الكود البرمجي - نظام تتبع الشمس الذكي",
+                
+                // 3D Model
+                modelTitle: "عارض النموذج ثلاثي الأبعاد",
+                modelText: "اضغط على الزر بالأعلى لتحميل النموذج",
+                modelFormat: "يدعم صيغة GLB - الملف: 3W.glb"
+            }
+        };
+
+        let currentLang = 'en';
+        let scene, camera, renderer, controls, model;
+
+        // Create stars
+        function createStars() {
+            const stars = document.getElementById('stars');
+            stars.innerHTML = '';
+            const starCount = window.innerWidth < 768 ? 100 : 200;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 5 + 's';
+                stars.appendChild(star);
+            }
+        }
+
+        // Language toggle - ALL CONTENT CHANGES
+        document.getElementById('langToggle').addEventListener('click', function() {
+            currentLang = currentLang === 'en' ? 'ar' : 'en';
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            updateContent();
+        });
+
+        // Update all content based on language
+        function updateContent() {
+            const t = translations[currentLang];
+            
+            // Update button text
+            document.getElementById('langToggle').innerHTML = `<i class="fas fa-language"></i> ${currentLang === 'en' ? 'العربية' : 'English'}`;
+            
+            // Hero section
+            document.querySelector('.hero-content h1').textContent = t.title;
+            document.querySelector('.student-name').textContent = t.student;
+            document.querySelector('.hero-content p').textContent = t.description;
+            
+            // Section titles
+            const sections = document.querySelectorAll('.section-title');
+            const sectionTitles = [t.about, t.features, t.components, t.model];
+            sections.forEach((title, index) => {
+                if (index < sectionTitles.length) title.textContent = sectionTitles[index];
+            });
+            
+            // Buttons
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                const btnText = btn.textContent.trim();
+                if (btnText.includes('Code') || btnText.includes('كود')) {
+                    btn.innerHTML = `<i class="fas fa-code"></i> ${t.viewCode}`;
+                } else if (btnText.includes('Model') || btnText.includes('نموذج')) {
+                    btn.innerHTML = `<i class="fas fa-cube"></i> ${t.viewModel}`;
+                } else if (btnText.includes('Load') || btnText.includes('تحميل')) {
+                    btn.innerHTML = `<i class="fas fa-cube"></i> ${t.loadModel}`;
+                } else if (btnText.includes('Copy') || btnText.includes('نسخ')) {
+                    btn.innerHTML = `<i class="fas fa-copy"></i> ${t.copyCode}`;
+                }
+            });
+            
+            // Back/Close buttons
+            document.querySelectorAll('.back-btn .back-text').forEach(span => {
+                span.textContent = t.back;
+            });
+            document.querySelectorAll('.back-btn .close-text').forEach(span => {
+                span.textContent = t.close;
+            });
+            
+            // Modal title
+            document.querySelector('.modal-title').textContent = t.codeTitle;
+            document.querySelector('.close-modal').textContent = '×';
+            
+            // 3D Model placeholder
+            const placeholder = document.querySelector('.model-placeholder');
+            placeholder.querySelector('h3').textContent = t.modelTitle;
+            placeholder.querySelectorAll('p')[0].textContent = t.modelText;
+            placeholder.querySelectorAll('p')[1].textContent = t.modelFormat;
+        }
+
+        // 3D Model functions
+        function load3DModel() {
+            const modelContainer = document.getElementById('modelContainer');
+            const modelPlaceholder = document.getElementById('modelPlaceholder');
+            
+            modelPlaceholder.style.display = 'none';
+            modelContainer.style.display = 'block';
+
+            if (!scene) {
+                initThreeJS();
+            }
+            loadGLBModel();
+        }
+
+        function hide3DModel() {
+            const modelContainer = document.getElementById('modelContainer');
+            const modelPlaceholder = document.getElementById('modelPlaceholder');
+            
+            modelContainer.style.display = 'none';
+            modelPlaceholder.style.display = 'flex';
+        }
+
+        function initThreeJS() {
+            const container = document.getElementById('threejs-container');
+            
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0a16);
+            
+            // Camera
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.z = 5;
+            
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+            
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.25;
+            
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffd700, 1);
+            directionalLight.position.set(5, 5, 5);
+            scene.add(directionalLight);
+            
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            animate();
+            
+            // Handle resize
+            window.addEventListener('resize', () => {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        }
+
+        function loadGLBModel() {
+            const loader = new THREE.GLTFLoader();
+            
+            // Load local GLB file from same directory
+            loader.load(
+                './3W.glb',
+                function(gltf) {
+                    if (model) scene.remove(model);
+                    model = gltf.scene;
+                    scene.add(model);
+                    
+                    // Center and scale model
+                    const box = new THREE.Box3().setFromObject(model);
+                    const center = box.getCenter(new THREE.Vector3());
+                    const size = box.getSize(new THREE.Vector3());
+                    
+                    model.position.sub(center);
+                    
+                    // Auto scale based on model size
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = 5 / maxDim;
+                    model.scale.setScalar(scale);
+                    
+                    // Position camera based on model size
+                    camera.position.z = maxDim * 2;
+                    controls.update();
+                },
+                function(xhr) {
+                    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function(error) {
+                    console.error('Error loading 3W.glb:', error);
+                    createFallbackModel();
+                }
+            );
+        }
+
+        function createFallbackModel() {
+            // Create a simple solar panel representation
+            const panelGeometry = new THREE.BoxGeometry(3, 2, 0.1);
+            const panelMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x2c3e50,
+                emissive: 0x34495e,
+                shininess: 30
+            });
+            
+            const solarPanel = new THREE.Mesh(panelGeometry, panelMaterial);
+            scene.add(solarPanel);
+            
+            // Create LDR sensors
+            const sensorGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+            const sensorMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x00ff00,
+                emissive: 0x00aa00
+            });
+            
+            const sensorPositions = [
+                [1.2, 0.8, 0.1], [-1.2, 0.8, 0.1],
+                [1.2, -0.8, 0.1], [-1.2, -0.8, 0.1]
+            ];
+            
+            sensorPositions.forEach(pos => {
+                const sensor = new THREE.Mesh(sensorGeometry, sensorMaterial);
+                sensor.position.set(pos[0], pos[1], pos[2]);
+                scene.add(sensor);
+            });
+        }
+
+        // Code modal functions
+        function showCodeModal() {
+            document.getElementById('codeModal').style.display = 'block';
+        }
+
+        function closeCodeModal() {
+            document.getElementById('codeModal').style.display = 'none';
+        }
+
+        function copyCode() {
+            const codeBlocks = document.querySelectorAll('.code-block');
+            let fullCode = '';
+            
+            codeBlocks.forEach(block => {
+                fullCode += block.textContent + '\n\n';
+            });
+            
+            navigator.clipboard.writeText(fullCode).then(() => {
+                alert(currentLang === 'en' ? 'Full code copied to clipboard!' : 'تم نسخ الكود كاملاً!');
+            });
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('codeModal');
+            if (event.target === modal) {
+                closeCodeModal();
+            }
+        }
+
+        // Initialize - تلقائي إنجليزي
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.dir = 'ltr';
+            document.documentElement.lang = 'en';
+            createStars();
+            updateContent();
+            
+            window.addEventListener('resize', createStars);
+        });
+    </script>
+</body>
+</html>
