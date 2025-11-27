@@ -140,7 +140,13 @@
             max-width: 700px;
             line-height: 1.6;
             color: #e0e0ff;
-            text-align: center;
+            text-align: left;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        body[dir="rtl"] .hero-content p {
+            text-align: right;
         }
 
         .student-name {
@@ -290,92 +296,36 @@
             margin-top: 40px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 215, 0, 0.2);
+            text-align: center;
         }
 
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 10px;
-            color: var(--neon-gold);
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            border-radius: 10px;
-            color: white;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--neon-gold);
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-        }
-
-        .form-group textarea {
-            min-height: 150px;
-            resize: vertical;
-        }
-
-        .submit-btn {
+        .form-btn {
             background: linear-gradient(45deg, var(--neon-gold), var(--neon-orange));
             color: black;
             border: none;
-            padding: 15px 40px;
+            padding: 18px 50px;
             border-radius: 50px;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+            text-decoration: none;
         }
 
-        .submit-btn:hover {
-            transform: translateY(-3px);
+        .form-btn:hover {
+            transform: translateY(-5px);
             box-shadow: 0 10px 30px rgba(255, 215, 0, 0.6);
+            color: black;
         }
 
-        .submit-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .form-message {
+        .form-info {
             margin-top: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            font-weight: bold;
-            display: none;
-        }
-
-        .form-message.success {
-            background: rgba(76, 175, 80, 0.2);
-            border: 1px solid #4CAF50;
-            color: #4CAF50;
-            display: block;
-        }
-
-        .form-message.error {
-            background: rgba(244, 67, 54, 0.2);
-            border: 1px solid #f44336;
-            color: #f44336;
-            display: block;
+            color: #e0e0ff;
+            font-size: 0.95rem;
         }
 
         /* Footer */
@@ -430,7 +380,20 @@
             }
             
             .suggestions-form {
-                padding: 20px;
+                padding: 25px;
+            }
+            
+            .form-btn {
+                padding: 15px 30px;
+                font-size: 1.1rem;
+            }
+            
+            .hero-content p {
+                text-align: center;
+            }
+            
+            body[dir="rtl"] .hero-content p {
+                text-align: center;
             }
         }
 
@@ -559,34 +522,26 @@
     <section id="suggestions">
         <h2 class="section-title">Suggestions</h2>
         <div class="suggestions-form">
-            <p style="text-align: center; margin-bottom: 30px; font-size: 1.1rem; color: #e0e0ff;">
+            <p style="margin-bottom: 30px; font-size: 1.1rem; color: #e0e0ff;">
                 <i class="fas fa-lightbulb" style="color: var(--neon-gold);"></i>
                 <span id="suggestion-text">Any suggestions that can make our project better?</span>
             </p>
             
-            <form id="suggestionForm">
-                <div class="form-group">
-                    <label for="name" id="name-label">Your Name</label>
-                    <input type="text" id="name" name="name" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="email" id="email-label">Your Email</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="suggestion" id="suggestion-label">Your Suggestion</label>
-                    <textarea id="suggestion" name="suggestion" placeholder="Write your suggestions here..." required></textarea>
-                </div>
-                
-                <button type="submit" class="submit-btn" id="submit-btn">
-                    <i class="fas fa-paper-plane"></i>
-                    <span id="submit-text">Send Suggestion</span>
-                </button>
-                
-                <div class="form-message" id="form-message"></div>
-            </form>
+            <!-- رابط Google Forms -->
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSd93OsOwGynUP3MsPO_k0p0LXs3oSlnGm_mZNGhv4P5mbCkiA/viewform?usp=sf_link" 
+               target="_blank" 
+               class="form-btn"
+               id="form-link">
+                <i class="fas fa-edit"></i>
+                <span id="submit-text">Submit Your Suggestion</span>
+            </a>
+
+            <div class="form-info">
+                <p>
+                    <i class="fas fa-external-link-alt"></i>
+                    <span id="form-info">Click to open suggestion form in new tab</span>
+                </p>
+            </div>
         </div>
     </section>
 
@@ -659,13 +614,8 @@
                 
                 // Suggestions Section
                 suggestionText: "Any suggestions that can make our project better?",
-                nameLabel: "Your Name",
-                emailLabel: "Your Email", 
-                suggestionLabel: "Your Suggestion",
-                submitText: "Send Suggestion",
-                sendingText: "Sending...",
-                successMessage: "Thank you! Your suggestion has been sent successfully.",
-                errorMessage: "Error sending suggestion. Please try again.",
+                submitText: "Submit Your Suggestion",
+                formInfo: "Click to open suggestion form in new tab",
                 
                 // Footer
                 footerTitle: "Tarteel Al-Soub Project"
@@ -727,13 +677,8 @@
                 
                 // Suggestions Section
                 suggestionText: "أي اقتراحات قادرة على أن تجعل مشروعنا أفضل؟",
-                nameLabel: "اسمك",
-                emailLabel: "بريدك الإلكتروني",
-                suggestionLabel: "اقتراحك",
-                submitText: "إرسال الاقتراح",
-                sendingText: "جاري الإرسال...",
-                successMessage: "شكراً لك! تم إرسال اقتراحك بنجاح.",
-                errorMessage: "خطأ في إرسال الاقتراح. يرجى المحاولة مرة أخرى.",
+                submitText: "إرسال اقتراحك",
+                formInfo: "انقر لفتح نموذج الاقتراحات في نافذة جديدة",
                 
                 // Footer
                 footerTitle: "مشروع ترتيل الصعوب"
@@ -835,62 +780,12 @@
             
             // Suggestions section
             document.getElementById('suggestion-text').textContent = t.suggestionText;
-            document.getElementById('name-label').textContent = t.nameLabel;
-            document.getElementById('email-label').textContent = t.emailLabel;
-            document.getElementById('suggestion-label').textContent = t.suggestionLabel;
             document.getElementById('submit-text').textContent = t.submitText;
+            document.getElementById('form-info').textContent = t.formInfo;
             
             // Footer
             document.querySelector('.footer-content h3').textContent = t.footerTitle;
         }
-
-        // Form submission
-        document.getElementById('suggestionForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const submitBtn = document.getElementById('submit-btn');
-            const submitText = document.getElementById('submit-text');
-            const formMessage = document.getElementById('form-message');
-            const t = translations[currentLang];
-            
-            // Get form data
-            const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                suggestion: document.getElementById('suggestion').value,
-                language: currentLang
-            };
-            
-            // Disable submit button
-            submitBtn.disabled = true;
-            submitText.textContent = t.sendingText;
-            
-            // Simulate email sending (in a real scenario, this would connect to a backend)
-            setTimeout(() => {
-                // Show success message
-                formMessage.textContent = t.successMessage;
-                formMessage.className = 'form-message success';
-                
-                // Create mailto link (this will open the user's email client)
-                const subject = `Suggestion for Solar Tracker Project - ${formData.name}`;
-                const body = `Name: ${formData.name}\nEmail: ${formData.email}\n\nSuggestion:\n${formData.suggestion}\n\nLanguage: ${formData.language}`;
-                
-                const mailtoLink = `mailto:abdalrhmanmaaith23@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                
-                // Open email client
-                window.location.href = mailtoLink;
-                
-                // Reset form
-                document.getElementById('suggestionForm').reset();
-                
-                // Re-enable button after delay
-                setTimeout(() => {
-                    submitBtn.disabled = false;
-                    submitText.textContent = t.submitText;
-                }, 3000);
-                
-            }, 2000);
-        });
 
         // Initialize - تلقائي إنجليزي
         document.addEventListener('DOMContentLoaded', function() {
